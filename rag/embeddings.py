@@ -1,7 +1,5 @@
-from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_ollama import OllamaEmbeddings
 from config import EMBEDDING_MODEL
 
 def get_embedding_model():
-    return HuggingFaceEmbeddings(
-        model_name=EMBEDDING_MODEL
-    )
+    return OllamaEmbeddings(model=EMBEDDING_MODEL)

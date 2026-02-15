@@ -1,15 +1,15 @@
 # LLM configuration
-LLM_MODEL = "gemma:2b"
+LLM_MODEL = "mistral:7b"
 
 # Embedding model
-EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
+EMBEDDING_MODEL = "mxbai-embed-large"
 
 # Chunk settings
-CHUNK_SIZE = 800
-CHUNK_OVERLAP = 100
+CHUNK_SIZE = 600
+CHUNK_OVERLAP = 120
 
 # Retrieval settings
-TOP_K = 3
+TOP_K = 5
 
 # Data folder
 DATA_PATH = "data"
