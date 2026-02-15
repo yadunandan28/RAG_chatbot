@@ -13,7 +13,14 @@ def load_pdfs():
             for doc in docs:
                 doc.metadata["source_file"] = file
 
+                # Simple classification by filename
+                if "resume" in file.lower():
+                    doc.metadata["doc_type"] = "resume"
+                else:
+                    doc.metadata["doc_type"] = "other"
+
             documents.extend(docs)
 
     return documents
+
 

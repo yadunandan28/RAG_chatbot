@@ -1,42 +1,99 @@
+import streamlit as st
+import os
 from rag.loader import load_pdfs
 from rag.chunker import split_documents
 from rag.embeddings import get_embedding_model
 from rag.vectorstore import create_vectorstore
 from rag.retriever import create_retriever
 from rag.chain import create_llm, generate_answer
+from config import DATA_PATH
 
-def main():
-    print("Loading PDFs...")
-    documents = load_pdfs()
-    print(f"Loaded {len(documents)} pages.")
+st.set_page_config(
+    page_title="AI PDF RAG Chatbot",
+    layout="wide"
+)
 
-    print("Splitting text...")
-    chunks = split_documents(documents)
-    print(f"Created {len(chunks)} chunks.")
+# ------------------ HEADER ------------------
+st.markdown("""
+# AI-Powered PDF RAG Chatbot
+""")
 
-    print("Creating embeddings...")
-    embedding_model = get_embedding_model()
+st.divider()
 
-    print("Creating vector store...")
-    vectorstore = create_vectorstore(chunks, embedding_model)
+# ------------------ SIDEBAR ------------------
+with st.sidebar:
+    st.header("⚙ Controls")
 
-    print("Creating retriever...")
-    retriever = create_retriever(vectorstore)
+    # Upload PDFs
+    uploaded_files = st.file_uploader(
+        "Upload PDF files",
+        type=["pdf"],
+        accept_multiple_files=True
+    )
 
-    print("Loading LLM...")
-    llm = create_llm()
+    if uploaded_files:
+        if not os.path.exists(DATA_PATH):
+            os.makedirs(DATA_PATH)
 
-    print("\nSystem ready! Ask questions (type 'exit' to quit)")
+        for uploaded_file in uploaded_files:
+            file_path = os.path.join(DATA_PATH, uploaded_file.name)
+            with open(file_path, "wb") as f:
+                f.write(uploaded_file.getbuffer())
 
-    while True:
-        query = input("\nQuestion: ")
+        st.success("Files uploaded successfully!")
 
-        if query.lower() == "exit":
-            break
+    # Index Button
+    if st.button("Index Documents"):
+        with st.spinner("Indexing documents... Please wait."):
+            documents = load_pdfs()
+            chunks = split_documents(documents)
+            embedding_model = get_embedding_model()
+            vectorstore = create_vectorstore(chunks, embedding_model)
+            retriever = create_retriever(vectorstore)
+            llm = create_llm()
 
-        answer = generate_answer(llm, retriever, query)
-        print("\nAnswer:\n", answer)
+            st.session_state.vectorstore = vectorstore
+            st.session_state.retriever = retriever
+            st.session_state.llm = llm
 
+        st.success("Indexing completed successfully!")
 
-if __name__ == "__main__":
-    main()
+    # Clear Chat
+    if st.button("Clear Chat"):
+        st.session_state.messages = []
+        st.success("Chat cleared!")
+
+# ------------------ MAIN CHAT SECTION ------------------
+
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+
+if "llm" not in st.session_state:
+    st.info("Upload PDFs and click 'Index Documents' to start chatting.")
+else:
+    st.subheader("Ask Questions About Your Documents")
+
+    user_query = st.chat_input("Type your question here...")
+
+    if user_query:
+        st.session_state.messages.append(
+            {"role": "user", "content": user_query}
+        )
+
+        with st.spinner("Generating response..."):
+            answer = generate_answer(
+                st.session_state.llm,
+                st.session_state.retriever,
+                st.session_state.vectorstore,
+                user_query
+            )
+
+        st.session_state.messages.append(
+            {"role": "assistant", "content": answer}
+        )
+
+# ------------------ DISPLAY CHAT ------------------
+
+for message in st.session_state.messages:
+    with st.chat_message(message["role"]):
+        st.markdown(message["content"])
