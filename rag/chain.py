@@ -23,7 +23,7 @@ def generate_answer(llm, retriever, vectorstore, query):
 
 
     # Filter strong matches (adjust threshold if needed)
-    similarity_threshold = 0.7
+    similarity_threshold = 0.75
 
     strong_docs = [
         doc for doc, score in docs_with_scores
