@@ -4,3 +4,4 @@ chroma_db/
 data/
 *.pyc
 .env
+uploaded_pdfs/
