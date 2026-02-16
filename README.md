@@ -161,6 +161,11 @@ Modular backend design
 
 Scalable full-stack architecture
 
+<img width="1912" height="891" alt="Screenshot 2026-02-17 005411" src="https://github.com/user-attachments/assets/12dab5d1-b35e-45d2-ad33-914e6adc3925" />
+
+<img width="1918" height="869" alt="Screenshot 2026-02-17 005720" src="https://github.com/user-attachments/assets/acbab2a3-d102-4332-b110-cc3b2259e685" />
+
+
 Future Improvements
 
 Streaming LLM responses
